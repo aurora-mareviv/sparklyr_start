@@ -1,0 +1,104 @@
+/*@import url('https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/cosmo/bootstrap.min.css');*/
+/*@import url('https://fonts.googleapis.com/icon?family=Material+Icons'); /*google icons*/
+@import url('https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css'); /*font awesome icons*/
+/*@import url('https://fonts.googleapis.com/css?family=Sofia'); /* google fonts */
+
+/* TWO COLUMN DISPLAY */
+#left {
+  left:-8.33%;
+  text-align: left;
+  float: left;
+  width:50%;
+  z-index:-10;
+}
+#right {
+  left:31.25%;
+  top: 75px;
+  float: right;
+  text-align: right;
+  z-index:-10;
+  width:50%;
+}
+
+/* COLORS */
+.reveal .coloured {
+  /*color: #13DAEC; original cyan*/
+  /*color: #6595e6; darker violet*/
+  color:#a7c2f1;
+}
+
+/* FONTS */
+.texttt {
+  font-family: monospace;
+}
+.reveal .fa {
+  font-family: 'FontAwesome';
+  font-style: normal;
+}
+.reveal .h2-mod {
+  font-size: 2.11em; 
+  margin: 0 0 20px 0;
+  color: #eee;
+  font-family: monospace;
+  font-weight: normal;
+  line-height: 1.2;
+  letter-spacing: normal;
+  text-shadow: 0px 0px 6px rgba(0, 0, 0, 0.2);
+  word-wrap: break-word;
+  text-shadow: 0 1px 0 #ccc, 0 2px 0 #c9c9c9, 0 3px 0 #bbb, 0 4px 0 #b9b9b9, 0 5px 0 #aaa, 0 6px 1px rgba(0, 0, 0, 0.1), 0 0 5px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.3), 0 3px 5px rgba(0, 0, 0, 0.2), 0 5px 10px rgba(0, 0, 0, 0.25), 0 20px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* ALERTS */
+.alert {
+padding: 15px;
+margin-bottom: 20px;
+border: 1px solid transparent;
+border-radius: 4px;
+}
+.alert-success {
+color: #3c763d;
+background-color: #dff0d8;
+border-color: #d6e9c6;
+}
+.alert-warning{
+  color:#8a6d3b;
+  background-color:#fcf8e3;
+  border-color:#faebcc
+}
+.alert-danger,
+.alert-error {
+  color: #b94a48;
+  background-color: #f2dede;
+  border-color: #eed3d7;
+}
+.alert-info {
+  color: #3a87ad;
+  background-color: #d9edf7;
+  border-color: #bce8f1;
+} 
+.alert-gray {
+  background-color: #f2f3f2;
+  border-color: #f2f3f2;
+}
+
+/*PRINT*/
+@media print {
+	.noPrint {
+	   display:none;
+   }
+	}
+
+/* IMAGE STYLING 
+.img-center{
+    padding: 0;
+    margin-left:auto;
+    margin-right:auto;
+    margin-top: 20px;
+    text-align:center;
+}
+.img-center img{
+    height: 400px;
+    width: 300px;
+    vertical-align: middle;
+}
+*/

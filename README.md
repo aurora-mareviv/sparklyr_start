@@ -1,9 +1,10 @@
 # sparklyr_start
 
-Materials to start using Spark in R (sparklyr package). 
+Materials to start using Spark in R (`sparklyr` package). 
 
-- Examples for local usage (in RStudio):  [sparklyr_start.Rmd](https://github.com/aurora-mareviv/sparklyr_start/blob/master/sparklyr_start.Rmd)
-- Examples for cluster usage (in Jupyter): [sparklyr_test.ipynb](https://github.com/aurora-mareviv/sparklyr_start/blob/master/sparklyr_test.ipynb)
+- Slides for the [sparklyr workshop](https://aurora-mareviv.github.io/sparklyr_test) - R users Galicia.
+- Examples for local usage (in RStudio):  [sparklyr_start.Rmd](https://github.com/aurora-mareviv/sparklyr_start/blob/master/sparklyr_start.Rmd).
+- Examples for cluster usage (in Jupyter): [sparklyr_test.ipynb](https://github.com/aurora-mareviv/sparklyr_start/blob/master/sparklyr_test.ipynb).
 
 
 ### Clone this repo

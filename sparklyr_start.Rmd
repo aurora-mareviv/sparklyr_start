@@ -1,0 +1,254 @@
+---
+title: "Sparklyr workshop - R Users Galicia"
+author: "A. Baluja"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    highlight: tango
+    toc: true
+    toc_depth: 4
+csl: ./assets/bib/csl/biomedcentral.csl
+bibliography: ./assets/bib/bibliography.bib
+editor_options: 
+  chunk_output_type: console
+# params:
+   # dataname: "jscars"
+---
+
+
+# What is sparklyr?
+
+- Exposes Spark's API (in Scala) from R.  
+
+- Spark lets us access to the Hadoop ecocystem.
+
+- To put it simple, <span style="color:#fffff;font-family:monospace;"> dplyr</span> over Spark!.
+
+- Created by Rstudio in 2016.
+
+
+[How does Spark work?](https://aurora-mareviv.github.io/sparklyr_test/#/como-funciona-spark-2){target="_blank"}
+
+
+# Notebook setup
+
+#### Clone this repo
+
+    $ git clone https://github.com/aurora-mareviv/sparklyr_start
+
+<!-- setup options -->
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, echo=TRUE, message = FALSE, warning = FALSE, comment="  ")
+```
+
+<!-- install libraries -->
+```{r install, results='hide'}
+# Installs missing libraries on render!
+list.of.packages <- c("sparklyr", "tidyverse", "Rcpp", "knitr")
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages, repos='https://cran.rstudio.com/')
+```
+
+<!-- load libraries -->
+```{r libraries, results='hide'}
+library(tidyverse)
+library(sparklyr)
+options(scipen=999)
+```
+
+```{r fun_import_test, eval=FALSE}
+source("./assets/rscripts/test.R", echo=FALSE)
+```
+
+<!-- working directories -->
+```{r directories}
+# directory where the notebook is
+wdir <- getwd() 
+# directory where data are imported from & saved to
+datadir <- file.path(wdir, "data") # better than datadir <- paste(wdir, "/data", sep="")
+# directory where external images are imported from
+imgdir <- file.path(wdir, "img")
+# directory where plots are saved to
+plotdir <- file.path(wdir, "plot")
+outdir <- file.path(wdir, "out")
+# the folder immediately above root dir
+Up <- paste("\\", basename(wdir), sep="")
+wdirUp <- gsub(Up, "", wdir) 
+```
+
+# Spark setup
+
+From within RStudio, we can easily install Spark:
+
+```{r install_spark, eval=FALSE}
+spark_install()
+```
+
+# Loading spark context (RDDs)
+
+Currently there are three types of contexts:
+
+- Local context:
+
+    + Interactive.
+    + If the user exits session, the tasks are terminated (use screen to run after session close).
+    + All processes reside in the LOGIN node (both drivers and executors).
+    + Can only be used for tasks that require very few resources.
+    
+- YARN-client:
+
+    + Interactive.
+    + If the user exits session, the tasks are terminated (use screen to run after session close).
+    + The driver resides in the LOGIN node, but the executors are in the CLUSTER nodes. Thus, executors can use all the memory available for the task in the CLUSTER nodes.
+    + Can be used for memory-intensive tasks.
+    
+- YARN-cluster:
+
+    + Not interactive.
+    + Both the driver and the executors reside in the CLUSTER nodes.
+    + Can be used for memory-intensive tasks.
+    + Currenty doesn't seem available for this version of R/sparklyr.
+    + Defining a new context (sc) overwrites the previous one.
+
+We'll set some session variables
+
+```{r session_vars}
+SPARK_HOME = Sys.getenv("SPARK_HOME")
+# SPARK_HOME = "~/spark/spark-2.3.1-bin-hadoop2.7" # MacOS
+# SPARK_HOME = "/usr/lib/spark" # GNUL
+```
+
+Create a Spark context:
+
+```{r spark_con}
+#sc <- spark_connect(master = "local")
+sc <- spark_connect(master = "local", spark_home = SPARK_HOME)
+```
+
+The connection `sc` will let us interact with Spark. The general pipeline we'll use will be: 
+
+- Upload the data to the HDFS HOME (in case there is one). For comparison, it works as if it was another disk partition we must transfer our files to. 
+- Add the data set to the Spark context `sc`. In this tutorial the master node will be local. This means that all the processes will reside in our local machine. Our PC will be both **driver** and **cluster**. 
+- Once data is added, we will read it into `sparklyr`. 
+- Make vectorised transformations over our dataframe ("map" operations).
+- Make our "reduce" operations. 
+- Collect the results back into our driver. This will let us make tables and graphs.
+
+## Upload data to HDFS
+
+In case we are dealing with an HDFS cluster, we must first upload our data to our HDFS HOME
+
+In local mode, this is not necessary, as we are not leaving our PC. 
+
+## Reading JSON into Spark context: `jscars.json`
+
+```{r}
+jscars <- spark_read_json(sc, name = "jscars", path = "data/jscars.json")
+```
+
+```{r}
+jscars %>%
+  head(6) %>%
+  collect()
+```
+
+## Basic data wrangling
+
+We can make good use of `magrittr::%>%` *pipes* for data wrangling or window operations:   
+The `warnings` issued here are usually not important. They depend on the `sparklyr` version. See [here](https://github.com/rstudio/sparklyr/issues/426) for more info.
+
+```{r}
+jscars %>%
+  group_by(vs) %>%
+  filter(gear == 3, hp > 100) %>%
+  mutate(horsepower_by_gear = rank(desc(hp / gear))) %>%
+  mutate(mpg_rank = rank(mpg)) %>%
+  select(gear, mpg_rank, horsepower_by_gear) %>% 
+  head(6) %>%
+  collect()
+```
+
+## Graphs
+
+```{r}
+jscars %>%
+  collect() %>%
+    ggplot(aes(wt, mpg)) +
+    geom_point(aes(colour=factor(gear), size=hp)) + 
+    geom_smooth(colour="#737373", alpha=0.3) + 
+    theme_bw()
+```
+
+
+# Models: K-means
+
+```{r}
+kmeans_model <- jscars %>%
+  select(wt, mpg) %>%
+  ml_kmeans(y ~ wt + mpg, k = 3)
+
+print(kmeans_model)
+# kmeans_model %>% str()
+```
+
+```{r}
+# predict the associated class
+predicts <- sdf_predict(jscars, kmeans_model) 
+predicted <- collect(predicts)
+collect(head(predicted))
+base::table(predicted$am, predicted$prediction)
+```
+
+```{r}
+# plot cluster membership
+sdf_predict(kmeans_model) %>%
+  collect() %>%
+  ggplot(aes(wt, mpg)) +
+    geom_point(aes(wt, mpg, col = factor(prediction + 1)),
+               size = 2, alpha = 0.5) + 
+    geom_point(data = kmeans_model$centers, aes(wt, mpg),
+               col = scales::muted(c("red", "green", "blue")),
+               pch = 'x', size = 12) +
+    scale_color_discrete(name = "Predicted Cluster",
+                         labels = paste("Cluster", 1:3)) +
+    labs(
+      x = "wt",
+      y = "mpg",
+      title = "K-Means Clustering",
+      subtitle = "Use Spark.ML to predict cluster membership with the jscars dataset."
+    ) +
+    theme_bw()
+```
+
+
+
+# Session Info
+
+```{r paths, eval=FALSE}
+.libPaths()
+Sys.getenv("R_HOME")
+```
+
+```{r sessionInfo}
+sessionInfo()
+```
+
+
+# References
+
+- [`sparklyr` workshop](https://github.com/aurora-mareviv/sparklyr_start){target="_blank"}
+- [`sparklyr` presentation](https://cdn.oreillystatic.com/en/assets/1/event/193/Sparklyr_%20An%20R%20interface%20for%20Apache%20Spark%20Presentation.pdf){target="_blank"}
+- [`sparklyr` tutorial](http://spark.rstudio.com/){target="_blank"}.
+- [`sparklyr` cheatsheet](http://spark.rstudio.com/images/sparklyr-cheatsheet.pdf){target="_blank"}.
+- [`sparklyr`: creating extensions](http://spark.rstudio.com/extensions.html){target="_blank"}.
+- [Differences between `sparkr` and `sparklyr`](https://stackoverflow.com/questions/39494484/sparkr-vs-sparklyr){target="_blank"}.
+- [Hive Operators and UDFs](https://cwiki.apache.org/confluence/display/Hive/LanguageManual+UDF){target="_blank"}.
+- [String Functions in Hive](http://www.folkstalk.com/2011/11/string-functions-in-hive.html){target="_blank"}.
+- [POSIX regular expressions](https://www.postgresql.org/docs/9.4/static/functions-matching.html#FUNCTIONS-POSIX-REGEXP){target="_blank"}.
+- [Material for Machine Learning Workshop Galicia 2016](http://nbviewer.jupyter.org/github/javicacheiro/machine_learning_galicia_2016/blob/master/notebooks/sentiment_analysis-amazon_books.ipynb){target="_blank"}.
+- [PySpark Course](https://github.com/javicacheiro/pyspark_course){target="_blank"}.
+- [PySpark Programming Guide](https://spark.apache.org/docs/0.9.0/python-programming-guide.html){target="_blank"}.
+- [PySpark cheatsheet](https://s3.amazonaws.com/assets.datacamp.com/blog_assets/PySpark_SQL_Cheat_Sheet_Python.pdf){target="_blank"}.
+- [Jupyter shortcuts](https://www.dataquest.io/blog/jupyter-notebook-tips-tricks-shortcuts/){target="_blank"}
+
+<!-- Sparklyr workshop aurora-mareviv-->

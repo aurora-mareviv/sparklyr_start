@@ -117,7 +117,7 @@ derby.log
 
 ####### Repo .gitignore
 /ignore/
-*.Rmd
+# *.Rmd
 index0.html
 
 

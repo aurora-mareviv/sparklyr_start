@@ -149,7 +149,7 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">Sparklyr workshop - R Users Galicia</h1>
 <h4 class="author"><em>A. Baluja</em></h4>
-<h4 class="date"><em>24 octubre, 2018</em></h4>
+<h4 class="date"><em>25 octubre, 2018</em></h4>
 
 </div>
 
@@ -190,11 +190,12 @@ $(document).ready(function () {
 <!-- setup options -->
 <!-- install libraries -->
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Installs missing libraries on render!</span>
-list.of.packages &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;sparklyr&quot;</span>, <span class="st">&quot;tidyverse&quot;</span>, <span class="st">&quot;Rcpp&quot;</span>, <span class="st">&quot;knitr&quot;</span>)
+list.of.packages &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;sparklyr&quot;</span>, <span class="st">&quot;rmarkdown&quot;</span>, <span class="st">&quot;dplyr&quot;</span>, <span class="st">&quot;Rcpp&quot;</span>, <span class="st">&quot;knitr&quot;</span>, <span class="st">&quot;ggplot2&quot;</span>)
 new.packages &lt;-<span class="st"> </span>list.of.packages[<span class="op">!</span>(list.of.packages <span class="op">%in%</span><span class="st"> </span><span class="kw">installed.packages</span>()[,<span class="st">&quot;Package&quot;</span>])]
 <span class="cf">if</span>(<span class="kw">length</span>(new.packages)) <span class="kw">install.packages</span>(new.packages, <span class="dt">repos=</span><span class="st">'https://cran.rstudio.com/'</span>)</code></pre></div>
 <!-- load libraries -->
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(tidyverse)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(dplyr)
+<span class="kw">library</span>(ggplot2)
 <span class="kw">library</span>(sparklyr)
 <span class="kw">options</span>(<span class="dt">scipen=</span><span class="dv">999</span>)</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">source</span>(<span class="st">&quot;./assets/rscripts/test.R&quot;</span>, <span class="dt">echo=</span><span class="ot">FALSE</span>)</code></pre></div>
@@ -246,7 +247,8 @@ wdirUp &lt;-<span class="st"> </span><span class="kw">gsub</span>(Up, <span clas
 </ul></li>
 </ul>
 <p>We’ll set some session variables</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SPARK_HOME =<span class="st"> </span><span class="kw">Sys.getenv</span>(<span class="st">&quot;SPARK_HOME&quot;</span>)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SPARK_HOME =<span class="st"> </span><span class="kw">Sys.getenv</span>(<span class="st">&quot;SPARK_HOME&quot;</span>) <span class="co"># but the path to Spark may be different in some cases!</span>
+<span class="co"># SPARK_HOME = &quot;&quot; </span>
 <span class="co"># SPARK_HOME = &quot;~/spark/spark-2.3.1-bin-hadoop2.7&quot; # MacOS</span>
 <span class="co"># SPARK_HOME = &quot;/usr/lib/spark&quot; # GNUL</span></code></pre></div>
 <p>Create a Spark context:</p>
@@ -392,28 +394,25 @@ base<span class="op">::</span><span class="kw">table</span>(predicted<span class
 <span class="st">   </span>[<span class="dv">1</span>] stats     graphics  grDevices utils     datasets  methods   base     
    
    other attached packages<span class="op">:</span>
-<span class="st">    </span>[<span class="dv">1</span>] bindrcpp_<span class="fl">0.2</span>.<span class="dv">2</span>  sparklyr_<span class="fl">0.9</span>.<span class="dv">1</span>  forcats_<span class="fl">0.3</span>.<span class="dv">0</span>   stringr_<span class="fl">1.3</span>.<span class="dv">1</span>  
-    [<span class="dv">5</span>] dplyr_<span class="fl">0.7</span>.<span class="dv">6</span>     purrr_<span class="fl">0.2</span>.<span class="dv">5</span>     readr_<span class="fl">1.1</span>.<span class="dv">1</span>     tidyr_<span class="fl">0.8</span>.<span class="dv">1</span>    
-    [<span class="dv">9</span>] tibble_<span class="fl">1.4</span>.<span class="dv">2</span>    ggplot2_<span class="fl">3.0</span>.<span class="dv">0</span>   tidyverse_<span class="fl">1.2</span>.<span class="dv">1</span>
+<span class="st">   </span>[<span class="dv">1</span>] bindrcpp_<span class="fl">0.2</span>.<span class="dv">2</span> sparklyr_<span class="fl">0.9</span>.<span class="dv">1</span> ggplot2_<span class="fl">3.0</span>.<span class="dv">0</span>  dplyr_<span class="fl">0.7</span>.<span class="dv">6</span>   
    
    loaded via a <span class="kw">namespace</span> (and not attached)<span class="op">:</span>
-<span class="st">    </span>[<span class="dv">1</span>] Rcpp_<span class="fl">0.12</span>.<span class="dv">18</span>     lubridate_<span class="fl">1.7</span>.<span class="dv">4</span>  lattice_<span class="fl">0.20</span><span class="op">-</span><span class="dv">35</span>  forge_<span class="fl">0.1</span>.<span class="dv">0</span>     
-    [<span class="dv">5</span>] utf8_<span class="fl">1.1</span>.<span class="dv">3</span>       assertthat_<span class="fl">0.2</span>.<span class="dv">0</span> rprojroot_<span class="fl">1.3</span><span class="op">-</span><span class="dv">2</span>  digest_<span class="fl">0.6</span>.<span class="dv">16</span>   
-    [<span class="dv">9</span>] psych_<span class="fl">1.8</span>.<span class="dv">4</span>      mime_<span class="fl">0.5</span>         R6_<span class="fl">2.2</span>.<span class="dv">2</span>         cellranger_<span class="fl">1.1</span>.<span class="dv">0</span>
-   [<span class="dv">13</span>] plyr_<span class="fl">1.8</span>.<span class="dv">4</span>       backports_<span class="fl">1.1</span>.<span class="dv">2</span>  evaluate_<span class="fl">0.10</span>.<span class="dv">1</span>  httr_<span class="fl">1.3</span>.<span class="dv">1</span>      
-   [<span class="dv">17</span>] pillar_<span class="fl">1.1</span>.<span class="dv">0</span>     rlang_<span class="fl">0.2</span>.<span class="dv">2</span>      lazyeval_<span class="fl">0.2</span>.<span class="dv">1</span>   readxl_<span class="fl">1.0</span>.<span class="dv">0</span>    
-   [<span class="dv">21</span>] rstudioapi_<span class="fl">0.7</span>   rmarkdown_<span class="fl">1.10</span>   labeling_<span class="fl">0.3</span>     config_<span class="fl">0.3</span>      
-   [<span class="dv">25</span>] foreign_<span class="fl">0.8</span><span class="op">-</span><span class="dv">69</span>   r2d3_<span class="fl">0.2</span>.<span class="dv">2</span>       htmlwidgets_<span class="fl">1.2</span>  munsell_<span class="fl">0.4</span>.<span class="dv">3</span>   
-   [<span class="dv">29</span>] shiny_<span class="fl">1.0</span>.<span class="dv">5</span>      broom_<span class="fl">0.4</span>.<span class="dv">5</span>      compiler_<span class="fl">3.4</span>.<span class="dv">3</span>   httpuv_<span class="fl">1.4</span>.<span class="fl">4.2</span>  
-   [<span class="dv">33</span>] modelr_<span class="fl">0.1</span>.<span class="dv">1</span>     pkgconfig_<span class="fl">2.0</span>.<span class="dv">1</span>  base64enc_<span class="fl">0.1</span><span class="op">-</span><span class="dv">3</span>  mnormt_<span class="fl">1.5</span><span class="op">-</span><span class="dv">5</span>    
-   [<span class="dv">37</span>] htmltools_<span class="fl">0.3</span>.<span class="dv">6</span>  openssl_<span class="fl">1.0</span>      tidyselect_<span class="fl">0.2</span>.<span class="dv">4</span> crayon_<span class="fl">1.3</span>.<span class="dv">4</span>    
-   [<span class="dv">41</span>] dbplyr_<span class="fl">1.2</span>.<span class="dv">1</span>     withr_<span class="fl">2.1</span>.<span class="dv">2</span>      later_<span class="fl">0.7</span>.<span class="dv">3</span>      rappdirs_<span class="fl">0.3</span>.<span class="dv">1</span>  
-   [<span class="dv">45</span>] grid_<span class="fl">3.4</span>.<span class="dv">3</span>       nlme_<span class="fl">3.1</span><span class="op">-</span><span class="fl">131.1</span>   jsonlite_<span class="fl">1.5</span>     xtable_<span class="fl">1.8</span><span class="op">-</span><span class="dv">2</span>    
-   [<span class="dv">49</span>] gtable_<span class="fl">0.2</span>.<span class="dv">0</span>     DBI_<span class="fl">0.7</span>          magrittr_<span class="fl">1.5</span>     scales_<span class="fl">0.5</span>.<span class="dv">0</span>    
-   [<span class="dv">53</span>] cli_<span class="fl">1.0</span>.<span class="dv">0</span>        stringi_<span class="fl">1.2</span>.<span class="dv">4</span>    reshape2_<span class="fl">1.4</span>.<span class="dv">3</span>   promises_<span class="fl">1.0</span>.<span class="dv">1</span>  
-   [<span class="dv">57</span>] xml2_<span class="fl">1.2</span>.<span class="dv">0</span>       tools_<span class="fl">3.4</span>.<span class="dv">3</span>      glue_<span class="fl">1.3</span>.<span class="dv">0</span>       hms_<span class="fl">0.4</span>.<span class="dv">2</span>       
-   [<span class="dv">61</span>] parallel_<span class="fl">3.4</span>.<span class="dv">3</span>   yaml_<span class="fl">2.2</span>.<span class="dv">0</span>       colorspace_<span class="fl">1.3</span><span class="op">-</span><span class="dv">2</span> rvest_<span class="fl">0.3</span>.<span class="dv">2</span>     
-   [<span class="dv">65</span>] knitr_<span class="fl">1.20</span>       bindr_<span class="fl">0.1</span>.<span class="dv">1</span>      haven_<span class="fl">1.1</span>.<span class="dv">2</span></code></pre></div>
+<span class="st">    </span>[<span class="dv">1</span>] tidyselect_<span class="fl">0.2</span>.<span class="dv">4</span> forge_<span class="fl">0.1</span>.<span class="dv">0</span>      purrr_<span class="fl">0.2</span>.<span class="dv">5</span>      reshape2_<span class="fl">1.4</span>.<span class="dv">3</span>  
+    [<span class="dv">5</span>] lattice_<span class="fl">0.20</span><span class="op">-</span><span class="dv">35</span>  colorspace_<span class="fl">1.3</span><span class="op">-</span><span class="dv">2</span> htmltools_<span class="fl">0.3</span>.<span class="dv">6</span>  yaml_<span class="fl">2.2</span>.<span class="dv">0</span>      
+    [<span class="dv">9</span>] base64enc_<span class="fl">0.1</span><span class="op">-</span><span class="dv">3</span>  utf8_<span class="fl">1.1</span>.<span class="dv">3</span>       rlang_<span class="fl">0.2</span>.<span class="dv">2</span>      pillar_<span class="fl">1.1</span>.<span class="dv">0</span>    
+   [<span class="dv">13</span>] later_<span class="fl">0.7</span>.<span class="dv">3</span>      foreign_<span class="fl">0.8</span><span class="op">-</span><span class="dv">69</span>   glue_<span class="fl">1.3</span>.<span class="dv">0</span>       withr_<span class="fl">2.1</span>.<span class="dv">2</span>     
+   [<span class="dv">17</span>] DBI_<span class="fl">0.7</span>          rappdirs_<span class="fl">0.3</span>.<span class="dv">1</span>   dbplyr_<span class="fl">1.2</span>.<span class="dv">1</span>     bindr_<span class="fl">0.1</span>.<span class="dv">1</span>     
+   [<span class="dv">21</span>] plyr_<span class="fl">1.8</span>.<span class="dv">4</span>       stringr_<span class="fl">1.3</span>.<span class="dv">1</span>    munsell_<span class="fl">0.4</span>.<span class="dv">3</span>    gtable_<span class="fl">0.2</span>.<span class="dv">0</span>    
+   [<span class="dv">25</span>] htmlwidgets_<span class="fl">1.2</span>  psych_<span class="fl">1.8</span>.<span class="dv">4</span>      evaluate_<span class="fl">0.10</span>.<span class="dv">1</span>  labeling_<span class="fl">0.3</span>    
+   [<span class="dv">29</span>] knitr_<span class="fl">1.20</span>       httpuv_<span class="fl">1.4</span>.<span class="fl">4.2</span>   parallel_<span class="fl">3.4</span>.<span class="dv">3</span>   broom_<span class="fl">0.4</span>.<span class="dv">5</span>     
+   [<span class="dv">33</span>] r2d3_<span class="fl">0.2</span>.<span class="dv">2</span>       Rcpp_<span class="fl">0.12</span>.<span class="dv">18</span>     xtable_<span class="fl">1.8</span><span class="op">-</span><span class="dv">2</span>     openssl_<span class="fl">1.0</span>     
+   [<span class="dv">37</span>] scales_<span class="fl">0.5</span>.<span class="dv">0</span>     backports_<span class="fl">1.1</span>.<span class="dv">2</span>  promises_<span class="fl">1.0</span>.<span class="dv">1</span>   jsonlite_<span class="fl">1.5</span>    
+   [<span class="dv">41</span>] config_<span class="fl">0.3</span>       mime_<span class="fl">0.5</span>         mnormt_<span class="fl">1.5</span><span class="op">-</span><span class="dv">5</span>     digest_<span class="fl">0.6</span>.<span class="dv">16</span>   
+   [<span class="dv">45</span>] stringi_<span class="fl">1.2</span>.<span class="dv">4</span>    shiny_<span class="fl">1.0</span>.<span class="dv">5</span>      grid_<span class="fl">3.4</span>.<span class="dv">3</span>       rprojroot_<span class="fl">1.3</span><span class="op">-</span><span class="dv">2</span> 
+   [<span class="dv">49</span>] cli_<span class="fl">1.0</span>.<span class="dv">0</span>        tools_<span class="fl">3.4</span>.<span class="dv">3</span>      magrittr_<span class="fl">1.5</span>     lazyeval_<span class="fl">0.2</span>.<span class="dv">1</span>  
+   [<span class="dv">53</span>] tibble_<span class="fl">1.4</span>.<span class="dv">2</span>     crayon_<span class="fl">1.3</span>.<span class="dv">4</span>     tidyr_<span class="fl">0.8</span>.<span class="dv">1</span>      pkgconfig_<span class="fl">2.0</span>.<span class="dv">1</span> 
+   [<span class="dv">57</span>] assertthat_<span class="fl">0.2</span>.<span class="dv">0</span> rmarkdown_<span class="fl">1.10</span>   httr_<span class="fl">1.3</span>.<span class="dv">1</span>       rstudioapi_<span class="fl">0.7</span>  
+   [<span class="dv">61</span>] R6_<span class="fl">2.2</span>.<span class="dv">2</span>         nlme_<span class="fl">3.1</span><span class="op">-</span><span class="fl">131.1</span>   compiler_<span class="fl">3.4</span>.<span class="dv">3</span></code></pre></div>
 </div>
 <div id="references" class="section level1">
 <h1>References</h1>

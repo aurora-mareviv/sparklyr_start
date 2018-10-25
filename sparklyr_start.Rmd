@@ -44,14 +44,15 @@ knitr::opts_chunk$set(collapse = TRUE, echo=TRUE, message = FALSE, warning = FAL
 <!-- install libraries -->
 ```{r install, results='hide'}
 # Installs missing libraries on render!
-list.of.packages <- c("sparklyr", "tidyverse", "Rcpp", "knitr")
+list.of.packages <- c("sparklyr", "rmarkdown", "dplyr", "Rcpp", "knitr", "ggplot2")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages, repos='https://cran.rstudio.com/')
 ```
 
 <!-- load libraries -->
 ```{r libraries, results='hide'}
-library(tidyverse)
+library(dplyr)
+library(ggplot2)
 library(sparklyr)
 options(scipen=999)
 ```
@@ -113,7 +114,8 @@ Currently there are three types of contexts:
 We'll set some session variables
 
 ```{r session_vars}
-SPARK_HOME = Sys.getenv("SPARK_HOME")
+SPARK_HOME = Sys.getenv("SPARK_HOME") # but the path to Spark may be different in some cases!
+# SPARK_HOME = "" 
 # SPARK_HOME = "~/spark/spark-2.3.1-bin-hadoop2.7" # MacOS
 # SPARK_HOME = "/usr/lib/spark" # GNUL
 ```

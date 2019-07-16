@@ -1,4 +1,4 @@
-sparklyr_start <img src="./assets/img/sparklyr_pipeline.png" align="right" width="100px" />
+sparklyr_start <img src="./assets/img/sparklyr_pipeline.png" align="right" width="200px" />
 ===============================================================================
 
 Materials to start using Spark in R (`sparklyr` package). 

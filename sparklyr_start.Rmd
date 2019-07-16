@@ -36,6 +36,14 @@ editor_options:
 
     $ git clone https://github.com/aurora-mareviv/sparklyr_start
 
+<!-- R version check -->
+```{r r_version_check}
+R_version_current <- paste0(version$major, ".", version$minor)
+R_version_tutorial <- "3.5.1"
+if (R_version_current < R_version_tutorial) message("Your R version is not updated; please go to: https://cran.r-project.org")
+```
+
+
 <!-- setup options -->
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(collapse = TRUE, echo=TRUE, message = FALSE, warning = FALSE, comment="  ")
@@ -58,7 +66,7 @@ options(scipen=999)
 ```
 
 ```{r fun_import_test, eval=FALSE}
-source("./assets/rscripts/test.R", echo=FALSE)
+source("./assets/rscripts/test.R", echo=FALSE) # if you want to source some R script
 ```
 
 <!-- working directories -->
@@ -70,7 +78,6 @@ datadir <- file.path(wdir, "data") # better than datadir <- paste(wdir, "/data",
 # directory where external images are imported from
 imgdir <- file.path(wdir, "img")
 # directory where plots are saved to
-plotdir <- file.path(wdir, "plot")
 outdir <- file.path(wdir, "out")
 # the folder immediately above root dir
 Up <- paste("\\", basename(wdir), sep="")
@@ -145,7 +152,7 @@ In local mode, this is not necessary, as we are not leaving our PC.
 ## Reading JSON into Spark context: `jscars.json`
 
 ```{r}
-jscars <- spark_read_json(sc, name = "jscars", path = "data/jscars.json")
+jscars <- spark_read_json(sc, name = "jscars", path = file.path(datadir, "jscars.json") )
 ```
 
 ```{r}
@@ -184,7 +191,7 @@ jscars %>%
 
 # Models: K-means
 
-```{r}
+```{r kmeans_model}
 kmeans_model <- jscars %>%
   select(wt, mpg) %>%
   ml_kmeans(y ~ wt + mpg, k = 3)
@@ -193,7 +200,7 @@ print(kmeans_model)
 # kmeans_model %>% str()
 ```
 
-```{r}
+```{r kmeans_model_predict}
 # predict the associated class
 predicts <- sdf_predict(jscars, kmeans_model) 
 predicted <- collect(predicts)
@@ -201,9 +208,9 @@ collect(head(predicted))
 base::table(predicted$am, predicted$prediction)
 ```
 
-```{r}
+```{r kmeans_model_plot}
 # plot cluster membership
-sdf_predict(kmeans_model) %>%
+  sdf_predict(jscars, kmeans_model) %>%
   collect() %>%
   ggplot(aes(wt, mpg)) +
     geom_point(aes(wt, mpg, col = factor(prediction + 1)),
@@ -238,19 +245,27 @@ sessionInfo()
 
 # References
 
+#### Sparklyr
+
 - [`sparklyr` workshop](https://github.com/aurora-mareviv/sparklyr_start){target="_blank"}
-- [`sparklyr` presentation](https://cdn.oreillystatic.com/en/assets/1/event/193/Sparklyr_%20An%20R%20interface%20for%20Apache%20Spark%20Presentation.pdf){target="_blank"}
+- [`sparklyr` presentation by RStudio](https://cdn.oreillystatic.com/en/assets/1/event/193/Sparklyr_%20An%20R%20interface%20for%20Apache%20Spark%20Presentation.pdf){target="_blank"}
 - [`sparklyr` tutorial](http://spark.rstudio.com/){target="_blank"}.
-- [`sparklyr` cheatsheet](http://spark.rstudio.com/images/sparklyr-cheatsheet.pdf){target="_blank"}.
+- [`sparklyr` cheatsheet](https://www.rstudio.com/resources/cheatsheets/#sparklyr){target="_blank"}.
 - [`sparklyr`: creating extensions](http://spark.rstudio.com/extensions.html){target="_blank"}.
 - [Differences between `sparkr` and `sparklyr`](https://stackoverflow.com/questions/39494484/sparkr-vs-sparklyr){target="_blank"}.
 - [Hive Operators and UDFs](https://cwiki.apache.org/confluence/display/Hive/LanguageManual+UDF){target="_blank"}.
 - [String Functions in Hive](http://www.folkstalk.com/2011/11/string-functions-in-hive.html){target="_blank"}.
 - [POSIX regular expressions](https://www.postgresql.org/docs/9.4/static/functions-matching.html#FUNCTIONS-POSIX-REGEXP){target="_blank"}.
+
+#### PySpark
+
+- [PySpark course](https://github.com/javicacheiro/pyspark_course){target="_blank"}
 - [Material for Machine Learning Workshop Galicia 2016](http://nbviewer.jupyter.org/github/javicacheiro/machine_learning_galicia_2016/blob/master/notebooks/sentiment_analysis-amazon_books.ipynb){target="_blank"}.
-- [PySpark Course](https://github.com/javicacheiro/pyspark_course){target="_blank"}.
 - [PySpark Programming Guide](https://spark.apache.org/docs/0.9.0/python-programming-guide.html){target="_blank"}.
 - [PySpark cheatsheet](https://s3.amazonaws.com/assets.datacamp.com/blog_assets/PySpark_SQL_Cheat_Sheet_Python.pdf){target="_blank"}.
+
+#### Jupyter
 - [Jupyter shortcuts](https://www.dataquest.io/blog/jupyter-notebook-tips-tricks-shortcuts/){target="_blank"}
+
 
 <!-- Sparklyr workshop aurora-mareviv-->
